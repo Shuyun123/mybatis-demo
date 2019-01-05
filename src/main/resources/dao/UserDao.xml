@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.anumbrella.mybatis.dao.UserDao">
+
+    <select id="selectAll" resultType="User">
+		select id, username, password, expried, disabled, email from user
+	</select>
+
+    <select id="selectById" resultType="User">
+		select id, username, password, expried, disabled, email from user
+          <bind name="print" value="@net.anumbrella.mybatis.util.StringUtil@print(_parameter)"/>
+		where id = #{id}
+	</select>
+
+
+    <select id="selectByUser" resultType="User" >
+        select id, username, password, expried, disabled, email from user
+        where 1=1
+        <if test="username != null  and username != ' '">
+            and username like concat('%', ＃{username},'%')
+        </if>
+        <if test="email!= null  and email != ' '">
+            and email = #{email}
+        </if>
+    </select>
+
+
+    <update id="update" parameterType="User">
+        UPDATE user
+        <set>
+            <if test="username != null  and username != ' '">
+                username = #{username},
+            </if>
+            <if test="email!= null  and email != ' '">
+                email = #{email},
+            </if>
+            id = #{id}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into user(
+        username, password,
+        <if test="email != null">
+            <if test="email != ''">
+                email,
+            </if>
+        </if>
+        expried, disabled)
+        values(
+        #{username}, #{password},
+        <if test="email != null">
+            <if test="email != ''">
+                #{email},
+            </if>
+        </if>
+        #{expried}, #{disabled})
+    </insert>
+
+    <select id="selectByIdOrUserName" resultType="User">
+        select id, username, password, expried, disabled, email from user
+        where 1=1
+        <choose>
+            <when test="id != null">
+                and id = #{id}
+            </when>
+            <when test="username != null and username != ''">
+                and username = #{username}
+            </when>
+            <otherwise>
+                limit 0
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <select id="selectByIdList" resultType="User">
+        select id, username, password, expried, disabled, email from user
+        from user
+        where id in
+        <foreach collection="list" open="(" close=")" separator="," item="id" index="i">
+            #{id}
+        </foreach>
+    </select>
+
+    <update id="updateByMap">
+        update user
+        set
+        <foreach collection="_parameter" item="val" index="key" separator=",">
+            ${key} = #{val}
+        </foreach>
+        where id = #{id}
+    </update>
+
+
+
+
+
+</mapper>
