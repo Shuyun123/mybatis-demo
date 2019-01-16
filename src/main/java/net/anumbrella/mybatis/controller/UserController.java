@@ -27,4 +27,10 @@ public class UserController {
     public List<User> users() {
         return userService.findAll();
     }
+
+
+    @RequestMapping("test")
+    public void test() {
+         userService.selectUserAndRoleByIdSelect(2l);
+    }
 }

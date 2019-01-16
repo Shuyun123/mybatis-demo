@@ -80,4 +80,38 @@ public interface UserDao {
      * @return
      */
     int updateById(User user);
+
+
+    /**
+     * 根据用户 id 获取用户信息和用户的角色信息
+     *
+     * @param id
+     * @return
+     */
+    User selectUserAndRoleById(Long id);
+
+    /**
+     * 根据用户 id 获取用户信息和用户的角色信息，嵌套查询方式
+     *
+     * @param id
+     * @return
+     */
+    User selectUserAndRoleByIdSelect(Long id);
+
+
+    /**
+     * 获取所有的用户以及对应的所有角色
+     *
+     * @return
+     */
+    List<User> selectAllUserAndRoles();
+
+
+    /**
+     * 通过嵌套查询获取指定用户的信息，以及用户的角色和权限信息
+     *
+     * @param id
+     * @return
+     */
+    User selectAllUserAndRolesSelect(Long id);
 }

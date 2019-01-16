@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.anumbrella.mybatis.dao.UserDao">
+
+    <resultMap id="userMap" type="net.anumbrella.mybatis.entity.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="email" column="email"/>
+        <result property="expired" column="expired"/>
+        <result property="disabled" column="disabled"/>
+        <result property="role.id" column="role.id"/>
+        <result property="role.role" column="role.role"/>
+        <result property="role.enabled" column="role.enabled"/>
+    </resultMap>
+
+    <!--<resultMap id="userRoleMap" extends="userMap" type="net.anumbrella.mybatis.entity.User">-->
+    <!--<association property="role" columnPrefix="role_"  javaType="Role">-->
+    <!--<result property="role.id" column="role.id"/>-->
+    <!--<result property="role.role" column="role.role"/>-->
+    <!--<result property="role.enabled" column="role.enabled"/>-->
+    <!--</association>-->
+    <!--</resultMap>-->
+
+
+    <resultMap id="userRoleMap" extends="userMap" type="net.anumbrella.mybatis.entity.User">
+        <association property="role" columnPrefix="role_" resultMap="net.anumbrella.mybatis.dao.RoleDao.roleMap"/>
+    </resultMap>
+
+
+    <resultMap id="userRoleMapSelect" extends="userMap" type="net.anumbrella.mybatis.entity.User">
+        <association property="role"
+                     fetchType="lazy"
+                     select="net.anumbrella.mybatis.dao.RoleDao.selectRoleById"
+                     column="{id=role.id}"/>
+    </resultMap>
+
+    <resultMap id="userRoleListMap" extends="userMap" type="net.anumbrella.mybatis.entity.User">
+        <collection property="roleList" columnPrefix="role_"
+                    resultMap="net.anumbrella.mybatis.dao.RoleDao.roleMap"/>
+    </resultMap>
+
+    <resultMap id="userRoleListMapSelect" extends="userMap" type="net.anumbrella.mybatis.entity.User">
+        <collection property="roleList"
+                    fetchType="lazy"
+                    select="net.anumbrella.mybatis.dao.RoleDao.selectRoleByUserId"
+                    column="{userId=id}"/>
+    </resultMap>
+
+
+    <select id="selectAll" resultType="net.anumbrella.mybatis.entity.User">
+		select id, username, password, expired, disabled, email from user
+	</select>
+
+    <select id="selectById" resultType="net.anumbrella.mybatis.entity.User">
+        select id, username, password, expired, disabled, email from user
+        <bind name="print" value="@net.anumbrella.mybatis.util.StringUtil@print(_parameter)"/>
+        where id = #{id}
+    </select>
+
+
+    <select id="selectByUser" resultType="net.anumbrella.mybatis.entity.User">
+        select id, username, password, expired, disabled, email from user
+        where 1=1
+        <if test="username != null  and username != ' '">
+            and username like concat('%', ＃{username},'%')
+        </if>
+        <if test="email!= null  and email != ' '">
+            and email = #{email}
+        </if>
+    </select>
+
+
+    <update id="update" parameterType="net.anumbrella.mybatis.entity.User">
+        UPDATE user
+        <set>
+            <if test="username != null  and username != ' '">
+                username = #{username},
+            </if>
+            <if test="email!= null  and email != ' '">
+                email = #{email},
+            </if>
+            id = #{id}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into user(
+        username, password,
+        <if test="email != null">
+            <if test="email != ''">
+                email,
+            </if>
+        </if>
+        expired, disabled)
+        values(
+        #{username}, #{password},
+        <if test="email != null">
+            <if test="email != ''">
+                #{email},
+            </if>
+        </if>
+        #{expired}, #{disabled})
+    </insert>
+
+    <select id="selectByIdOrUserName" resultType="net.anumbrella.mybatis.entity.User">
+        select id, username, password, expired, disabled, email from user
+        where 1=1
+        <choose>
+            <when test="id != null">
+                and id = #{id}
+            </when>
+            <when test="username != null and username != ''">
+                and username = #{username}
+            </when>
+            <otherwise>
+                limit 0
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <select id="selectByIdList" resultType="net.anumbrella.mybatis.entity.User">
+        select id, username, password, expired, disabled, email from user
+        from user
+        where id in
+        <foreach collection="list" open="(" close=")" separator="," item="id" index="i">
+            #{id}
+        </foreach>
+    </select>
+
+    <update id="updateByMap">
+        update user
+        set
+        <foreach collection="_parameter" item="val" index="key" separator=",">
+            ${key} = #{val}
+        </foreach>
+        where id = #{id}
+    </update>
+
+
+    <select id="selectUserAndRoleById" resultType="net.anumbrella.mybatis.entity.User">
+      select
+        u.*,
+        r.id "role.id",
+        r.role "role.role",
+        r.enabled "role.enabled"
+        from user u
+        inner join role r on u.id = r.user_id
+        where u.id = #{id}
+    </select>
+
+    <select id="selectUserAndRoleByIdSelect" resultMap="userRoleMapSelect">
+	    select
+	    	u.id,
+	    	u.username,
+	        u.password,
+	        u.email,
+	        u.expired,
+	        u.disabled,
+			r.id "role.id"
+		from user u
+		inner join role r on u.id = r.user_id
+	    where u.id = #{id}
+	</select>
+
+    <select id="selectAllUserAndRoles" resultMap="userRoleListMap">
+      select
+        u.*,
+        r.id "role_id",
+        r.role "role_role",
+        r.enabled "role_enabled"
+        from user u
+        inner join role r on u.id = r.user_id
+    </select>
+
+
+    <select id="selectAllUserAndRolesSelect" resultMap="userRoleListMapSelect">
+        select
+        u.id,
+        u.username,
+        u.password,
+        u.email,
+        u.expired,
+        u.disabled
+        from user u
+        where u.id = #{id}
+    </select>
+
+
+</mapper>

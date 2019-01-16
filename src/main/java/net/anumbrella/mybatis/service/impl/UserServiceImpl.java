@@ -15,16 +15,21 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private UserDao UserDao;
+    private UserDao userDao;
 
     @Override
     public User findById(Long id) {
-        return UserDao.selectById(id);
+        return userDao.selectById(id);
     }
 
     @Override
     public List<User> findAll() {
-        return UserDao.selectAll();
+        return userDao.selectAll();
+    }
+
+    @Override
+    public User selectUserAndRoleByIdSelect(Long id) {
+        return userDao.selectUserAndRoleByIdSelect(id);
     }
 
 }

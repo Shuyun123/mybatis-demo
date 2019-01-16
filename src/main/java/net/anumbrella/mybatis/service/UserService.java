@@ -23,4 +23,13 @@ public interface UserService {
      * @return
      */
     List<User> findAll();
+
+
+    /**
+     * 根据用户 id 获取用户信息和用户的角色信息，嵌套查询方式
+     *
+     * @param id
+     * @return
+     */
+    User selectUserAndRoleByIdSelect(Long id);
 }

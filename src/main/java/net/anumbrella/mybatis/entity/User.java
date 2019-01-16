@@ -1,9 +1,12 @@
 package net.anumbrella.mybatis.entity;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * @author Anumbrella
  */
-public class User {
+public class User implements Serializable{
 
 
     private Long id;
@@ -12,11 +15,17 @@ public class User {
 
     private String password;
 
-    private Integer expried;
+    private Integer expired;
 
     private Integer disabled;
 
     private String email;
+
+
+    private Role role;
+
+
+    private List<Role> roleList;
 
 
     public Long getId() {
@@ -43,12 +52,12 @@ public class User {
         this.password = password;
     }
 
-    public Integer getExpried() {
-        return expried;
+    public Integer getExpired() {
+        return expired;
     }
 
-    public void setExpried(Integer expried) {
-        this.expried = expried;
+    public void setExpired(Integer expired) {
+        this.expired = expired;
     }
 
     public Integer getDisabled() {
@@ -65,5 +74,21 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public List<Role> getRoleList() {
+        return roleList;
+    }
+
+    public void setRoleList(List<Role> roleList) {
+        this.roleList = roleList;
     }
 }
